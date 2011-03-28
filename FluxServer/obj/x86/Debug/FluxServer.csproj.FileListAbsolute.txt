@@ -1,0 +1,5 @@
+D:\Code\C#\Flux\DebugBin\FluxServer.exe
+D:\Code\C#\Flux\DebugBin\FluxServer.pdb
+D:\Code\C#\Flux\FluxServer\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Code\C#\Flux\FluxServer\obj\x86\Debug\FluxServer.exe
+D:\Code\C#\Flux\FluxServer\obj\x86\Debug\FluxServer.pdb

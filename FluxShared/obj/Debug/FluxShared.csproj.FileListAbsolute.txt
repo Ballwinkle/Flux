@@ -1,0 +1,5 @@
+D:\Code\C#\Flux\DebugBin\FluxShared.dll
+D:\Code\C#\Flux\DebugBin\FluxShared.pdb
+D:\Code\C#\Flux\FluxShared\obj\Debug\ResolveAssemblyReference.cache
+D:\Code\C#\Flux\FluxShared\obj\Debug\FluxShared.dll
+D:\Code\C#\Flux\FluxShared\obj\Debug\FluxShared.pdb
