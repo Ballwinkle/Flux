@@ -1,5 +1,0 @@
-D:\Code\C#\Flux\DebugBin\fluxclient.dll
-D:\Code\C#\Flux\DebugBin\fluxclient.pdb
-D:\Code\C#\Flux\fluxclient\obj\Debug\ResolveAssemblyReference.cache
-D:\Code\C#\Flux\fluxclient\obj\Debug\fluxclient.dll
-D:\Code\C#\Flux\fluxclient\obj\Debug\fluxclient.pdb
