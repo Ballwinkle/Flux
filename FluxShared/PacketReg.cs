@@ -9,17 +9,19 @@ namespace Flux
     {
         public static PacketTypeEnum TypeToEnum(Type t)
         {
-            if (t == new AuthPacket().GetType())
+            if (t == new AuthRequest().GetType())
                 return PacketTypeEnum.LoginRequest;
+            if (t == new AuthResponse().GetType())
+                return PacketTypeEnum.LoginResponse;
             return PacketTypeEnum.Null;
         }
 
         public static Type EnumToPacketType(PacketTypeEnum e)
         {
             if (e == PacketTypeEnum.LoginRequest)
-            {
-                return new AuthPacket().GetType();
-            }
+                return new AuthRequest().GetType();
+            if (e == PacketTypeEnum.LoginResponse)
+                return new AuthResponse().GetType();
             return new NullPacket().GetType();
         }
     }

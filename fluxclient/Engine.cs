@@ -8,6 +8,7 @@ namespace Flux.Client
     public class Engine
     {
         bool isLoggedIn = false;
+        ushort FluxID = 0;
         public void StartFluxEngine() 
         {
             GASClient.Connect("gas.fluxhandled.net", 29301);
@@ -34,13 +35,23 @@ namespace Flux.Client
             if (isLoggedIn)
                 return false;
             uint pID = IntGen.GetNewGUID();
-            AuthPacket authRequest = new AuthPacket();
+            AuthRequest authRequest = new AuthRequest();
             authRequest.Username = username;
             authRequest.Password = password;
             GASClient.GAS.SendPacket(authRequest.Write(), pID);
             GASClient.GAS.Recieve(pID);
             if (!GASClient.GAS.RecievedPacketsContains(pID))
                 return false;
+            IPacket ipacket = BasePacket.Read(GASClient.GAS.RecievedPacketsGet(pID));
+            if (ipacket.GetPacketType() != PacketTypeEnum.LoginResponse)
+                return false;
+            AuthResponse authResponse = (AuthResponse)ipacket;
+            if (authResponse.ResponseType == LoginResponseTypeEnum.LoginValidated)
+            {
+                this.isLoggedIn = true;
+                this.FluxID = authResponse.FluxID;
+                return true;
+            }
             return false;
         }
     }

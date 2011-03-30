@@ -98,16 +98,11 @@ namespace Flux.Server
         {
             try
             {
-                MemoryStream memStr = new MemoryStream(packet);
-                BinaryReader reader = new BinaryReader(memStr);
-                PacketTypeEnum PacketType = (PacketTypeEnum)reader.ReadUInt16();
-
-                MemoryStream responseStream = new MemoryStream();
-                BinaryWriter writer = new BinaryWriter(responseStream);
-                switch (PacketType)
+                IPacket ipacket = BasePacket.Read(packet);
+                switch (ipacket.GetPacketType())
                 {
                     case PacketTypeEnum.LoginRequest:
-
+                        
                         break;
 
                     case PacketTypeEnum.LoginResponse:
