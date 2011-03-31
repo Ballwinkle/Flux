@@ -74,6 +74,7 @@ namespace Flux.Client
                 BinaryWriter writer = new BinaryWriter(memStr);
                 writer.Write(RequestID);
                 writer.Write(buffer);
+                Log.Debug("Message length is " + memStr.Length.ToString());
                 client.Send(memStr.ToArray());
             }
             catch
@@ -84,21 +85,24 @@ namespace Flux.Client
 
         private void RecieveLoop()
         {
-            try
+            while (client.Connected)
             {
-                byte[] buffer = null;
-                client.Receive(buffer);
-                MemoryStream memstr = new MemoryStream(buffer);
-                BinaryReader reader = new BinaryReader(memstr);
-                uint RequestID = reader.ReadUInt32();
-                byte[] packet = reader.ReadBytes((int)(memstr.Length - 4));
-                RecievedPacketsAdd(RequestID, packet);
-                if (PacketRecieved != null)
-                    PacketRecieved(RequestID);
-            }
-            catch
-            {
+                try
+                {
+                    byte[] buffer = new byte[1024];
+                    client.Receive(buffer);
+                    MemoryStream memstr = new MemoryStream(buffer);
+                    BinaryReader reader = new BinaryReader(memstr);
+                    uint RequestID = reader.ReadUInt32();
+                    byte[] packet = reader.ReadBytes((int)(memstr.Length - 4));
+                    RecievedPacketsAdd(RequestID, packet);
+                    if (PacketRecieved != null)
+                        PacketRecieved(RequestID);
+                }
+                catch
+                {
 
+                }
             }
         }
 

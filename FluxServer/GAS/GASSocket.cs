@@ -76,21 +76,26 @@ namespace Flux.Server
 
         private void RecieveLoop() 
         {
-            try
+            while (client.Connected)
             {
-                byte[] buffer = null;
-                client.Receive(buffer);
-                LastTouched = DateTime.Now;
-                MemoryStream memstr = new MemoryStream(buffer);
-                BinaryReader reader = new BinaryReader(memstr);
-                uint RequestID = reader.ReadUInt32();
-                byte[] packet = reader.ReadBytes((int)(memstr.Length - 4));
-                byte[] response = HandlePacket(packet);
-                SendPacket(response, RequestID);
-            }
-            catch
-            {
-
+                try
+                {
+                    byte[] buffer = new byte[1024];
+                    Log.Debug("Starting recieve...");
+                    client.Receive(buffer);
+                    LastTouched = DateTime.Now;
+                    MemoryStream memstr = new MemoryStream(buffer);
+                    BinaryReader reader = new BinaryReader(memstr);
+                    uint RequestID = reader.ReadUInt32();
+                    byte[] packet = reader.ReadBytes((int)(memstr.Length - 4));
+                    byte[] response = HandlePacket(packet);
+                    SendPacket(response, RequestID);
+                }
+                catch (Exception e)
+                {
+                    if(client.Connected)
+                    Log.Debug("Error recieving: " + e.Message);
+                }
             }
         }
 
@@ -102,19 +107,33 @@ namespace Flux.Server
                 switch (ipacket.GetPacketType())
                 {
                     case PacketTypeEnum.LoginRequest:
-                        
-                        break;
+                        Log.Debug("Handling LoginRequest...");
+                        AuthResponse authResponse = new AuthResponse();
+                        AuthRequest authRequest = (AuthRequest)ipacket;
+                        UserInfo userInfo = DB.Current.AuthorizeUser(authRequest.Username, authRequest.Password);
+                        authResponse.ResponseType = userInfo.LoginResponse;
+                        if (userInfo.LoginResponse == LoginResponseTypeEnum.LoginValidated)
+                        {
+                            this.FluxID = userInfo.FluxID;
+                            authResponse.FluxID = userInfo.FluxID;
+                        }
+                        return authResponse.Write();
 
                     case PacketTypeEnum.LoginResponse:
-
+                        Log.Debug("Recieved LoginResponse - are you sure we want to login somewhere?");
                         break;
 
                     default:
+                        Log.Debug("Unhandled PacketType: " + ipacket.GetPacketType().ToString() + ". Ignoring.");
                         return null;
                 }
                 return null;
             }
-            catch { return null; }
+            catch (Exception e)
+            {
+                Log.Debug("Can't handle packet: " + e.Message);
+                return null; 
+            }
         }
     }
 }

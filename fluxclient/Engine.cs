@@ -11,7 +11,8 @@ namespace Flux.Client
         ushort FluxID = 0;
         public void StartFluxEngine() 
         {
-            GASClient.Connect("gas.fluxhandled.net", 29301);
+            Log.Initialize("client.log", LogLevel.All, true);
+            GASClient.Connect("localhost", 29301);
             GASClient.GAS.PacketRecieved += new GASClient.PacketRecievedHandler(GAS_PacketRecieved);
             LocalTCP.Start();
         }
@@ -30,10 +31,10 @@ namespace Flux.Client
             }
         }
 
-        public bool Login(string username, string password)
+        public LoginCompletedEventArgs Login(string username, string password)
         {
             if (isLoggedIn)
-                return false;
+                return new LoginCompletedEventArgs("Already logged in");
             uint pID = IntGen.GetNewGUID();
             AuthRequest authRequest = new AuthRequest();
             authRequest.Username = username;
@@ -41,18 +42,25 @@ namespace Flux.Client
             GASClient.GAS.SendPacket(authRequest.Write(), pID);
             GASClient.GAS.Recieve(pID);
             if (!GASClient.GAS.RecievedPacketsContains(pID))
-                return false;
+                return new LoginCompletedEventArgs("Server timed out");
             IPacket ipacket = BasePacket.Read(GASClient.GAS.RecievedPacketsGet(pID));
             if (ipacket.GetPacketType() != PacketTypeEnum.LoginResponse)
-                return false;
+                return new LoginCompletedEventArgs("Incorrect server response");
             AuthResponse authResponse = (AuthResponse)ipacket;
+            Log.Debug(authResponse.ResponseType.ToString());
             if (authResponse.ResponseType == LoginResponseTypeEnum.LoginValidated)
             {
                 this.isLoggedIn = true;
                 this.FluxID = authResponse.FluxID;
-                return true;
+                return new LoginCompletedEventArgs(true);
             }
-            return false;
+            if (authResponse.ResponseType == LoginResponseTypeEnum.LoginInvalid)
+                return new LoginCompletedEventArgs("Your login doesn't seem to be valid.");
+            if (authResponse.ResponseType == LoginResponseTypeEnum.ServerNA)
+                return new LoginCompletedEventArgs("The server is set to maintence mode.");
+            if (authResponse.ResponseType == LoginResponseTypeEnum.UserBanned)
+                return new LoginCompletedEventArgs("You are banned.");
+            return new LoginCompletedEventArgs("Unknown Error"); //Why is this even called, there is no other possible enum option
         }
     }
 }

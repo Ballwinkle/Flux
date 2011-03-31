@@ -23,7 +23,7 @@ namespace Flux
 
     public class UserInfo
     {
-        public int FluxID;
+        public ushort FluxID;
         public LoginResponseTypeEnum LoginResponse;
     }
 

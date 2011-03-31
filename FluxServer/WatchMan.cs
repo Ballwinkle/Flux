@@ -18,8 +18,8 @@ namespace Flux.Server
             Log.Info("Starting WatchMan...");
             while (true)
             {
-                System.Threading.Thread.Sleep(60000);
-                TicketCleanup();
+                System.Threading.Thread.Sleep(6000);
+                //TicketCleanup(); //TODO Fix this
                 SocketCleanup();
             }
         }
@@ -28,16 +28,23 @@ namespace Flux.Server
         {
             try
             {
+                List<GAS> SocketsToDelete = new List<GAS>();
                 foreach (GAS user in GAS.Users)
                 {
-                    if ((DateTime.Now - user.LastTouched).Minutes < 3)
-                        GAS.Users.Remove(user);
+                    if ((DateTime.Now - user.LastTouched).Minutes > 3)
+                        SocketsToDelete.Add(user);
                 }
-                Log.Info("Socket cleanup complete");
+                foreach (GAS user in SocketsToDelete)
+                {
+                    GAS.Users.Remove(user);
+                }
+                if (SocketsToDelete.Count > 0)
+                    Log.Info(SocketsToDelete.Count + " socket reference(s) deleted");
+                SocketsToDelete.Clear();
             }
-            catch 
+            catch (Exception e)
             {
-                Log.Error("Socket cleanup failed");
+                Log.Error("Socket cleanup failed: " + e.Message);
             }
         }
 

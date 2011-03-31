@@ -72,7 +72,7 @@ namespace Flux.Server
                     if (password.ToLower() == Reader.GetString("password").ToLower())
                     {
                         ui.LoginResponse = LoginResponseTypeEnum.LoginValidated;
-                        ui.FluxID = Reader.GetInt32("fluxid");
+                        ui.FluxID = (ushort)Reader.GetInt32("fluxid");
                     }
                     else
                         ui.LoginResponse = LoginResponseTypeEnum.LoginInvalid;
